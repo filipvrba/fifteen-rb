@@ -1,4 +1,4 @@
-require 'lib/fifteen/version.rb'
+require 'lib/fifteen-1.0.0/fifteen/version.rb'
 
 module Fifteen
   def self.get_matrix(size)
@@ -64,6 +64,35 @@ module Fifteen
       matrix[last_pos.y][last_pos.x] =
         matrix[last_pos.y - direction.y][last_pos.x - direction.x]
       matrix[last_pos.y - direction.y][last_pos.x - direction.x] = get_last_number(matrix)
+    end
+
+    return matrix
+  end
+
+  def self.move_multiple_times(matrix, position, &block)
+    last_pos = get_last_position(matrix)
+    
+    unless last_pos.x == position.x ||
+           last_pos.y == position.y
+      return matrix
+    end
+
+    r_direction = Core::Vector2.new(
+      last_pos.x - position.x,
+      last_pos.y - position.y
+    )
+    n_direction = r_direction.normalize
+    count = [
+      r_direction.x.abs,
+      r_direction.y.abs
+    ].max
+
+    count.each do
+      matrix = move_last_number(matrix, n_direction) do |is_possible|
+        if block
+          block.call(is_possible)
+        end
+      end
     end
 
     return matrix
